@@ -1,0 +1,30 @@
+{
+  "name": "gulp-starter",
+  "version": "1.0.0",
+  "description": "Personal gulp setup",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JPBelley/gulp-starter.git"
+  },
+  "keywords": [
+    "Gulp"
+  ],
+  "author": "JPBelley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JPBelley/gulp-starter/issues"
+  },
+  "homepage": "https://github.com/JPBelley/gulp-starter#readme",
+  "devDependencies": {
+    "browser-sync": "^2.24.4",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-imagemin": "^4.1.0",
+    "gulp-sass": "^4.0.1"
+  }
+}
