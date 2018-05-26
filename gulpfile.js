@@ -1,6 +1,7 @@
 // load the require modules
 var gulp = require('gulp');
 var sass = require('gulp-sass');
+var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
 var autoprefixer = require('gulp-autoprefixer');
 var browserSync = require('browser-sync').create();
@@ -21,7 +22,14 @@ gulp.task('sass', function(){
     }))
 });
 
-//image minification -- only changes if necessary
+// Javascript
+gulp.task('scripts', function(){
+  return gulp.src('src/js/*.js')
+    .pipe(uglify())
+    .pipe(gulp.dest('app/js'));
+});
+
+// image minification -- only changes if necessary
 gulp.task('imagemin', function(){
   var img_src = 'src/images/*';
   var img_dest = 'app/images';
