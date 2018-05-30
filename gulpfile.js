@@ -1,21 +1,35 @@
 // load the require modules
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var uglify = require('gulp-uglify');
-var concat = require('gulp-concat');
-var autoprefixer = require('gulp-autoprefixer');
-var browserSync = require('browser-sync').create();
-var imagemin = require('gulp-imagemin');
-// À compléter
-// var babel = require("gulp-babel");
+let gulp         = require('gulp');
+let sass         = require('gulp-sass');
+let uglify       = require('gulp-uglify');
+let concat       = require('gulp-concat');
+let autoprefixer = require('gulp-autoprefixer');
+let browserSync  = require('browser-sync').create();
+let imagemin     = require('gulp-imagemin');
+let cleanCSS     = require('gulp-clean-css'); // Not required with sass
+let plumber      = require('gulp-plumber');
+let sourcemaps   = require('gulp-sourcemaps');
 
+// File paths
+let SCRIPTS_PATH = 'src/js/**/*.js';
+let CSS_PATH = 'src/scss/**/*.scss';
 
 // Translate SASS to CSS
 gulp.task('sass', function(){
-  return gulp.src('src/scss/**/*.scss')
-    .pipe(sass()) // Converts Sass to CSS with gulp-sass
+  return gulp.src(['src/scss/reset.scss', CSS_PATH])
+    .pipe(plumber(function(err) {
+      console.log('Style task error');
+      console.log(err);
+      this.emit('end');
+    })) // Keep gulp watch running even if the an error
+    .pipe(sourcemaps.init())
+    .pipe(sass({
+      outputStyle: 'compressed'
+    })) // Converts Sass to CSS with gulp-sass
     .pipe(autoprefixer())
-    .pipe(concat('style.css'))
+    // .pipe(concat('style.css'))
+    // .pipe(cleanCSS({compatibility: 'ie8'}))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('app/css/'))
     .pipe(browserSync.reload({
       stream: true
@@ -24,7 +38,7 @@ gulp.task('sass', function(){
 
 // Javascript
 gulp.task('scripts', function(){
-  return gulp.src('src/js/*.js')
+  return gulp.src(SCRIPTS_PATH)
     .pipe(uglify())
     .pipe(gulp.dest('app/js'));
 });
@@ -42,17 +56,17 @@ gulp.task('imagemin', function(){
 
 // Watcher to rerun gulp on save
 gulp.task('default', ['browserSync', 'sass', 'imagemin'], function(){
-  gulp.watch('src/scss/**/*.scss', ['sass']);
+  gulp.watch(CSS_PATH, ['sass']);
   // Other watchers
   gulp.watch('app/*.html', browserSync.reload);
-  gulp.watch('src/js/**/*.js', browserSync.reload);
+  gulp.watch(SCRIPTS_PATH, ['scripts'], browserSync.reload);
 })
 // Watcher to rerun gulp on save
 gulp.task('watch', ['browserSync', 'sass', 'imagemin'], function(){
-  gulp.watch('src/scss/**/*.scss', ['sass']);
+  gulp.watch(CSS_PATH, ['sass']);
   // Other watchers
   gulp.watch('app/*.html', browserSync.reload);
-  gulp.watch('src/js/**/*.js', browserSync.reload);
+  gulp.watch(SCRIPTS_PATH, browserSync.reload);
 })
 
 // Setting up a web server for auto browser reload
