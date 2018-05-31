@@ -9,6 +9,7 @@ let imagemin     = require('gulp-imagemin');
 let cleanCSS     = require('gulp-clean-css'); // Not required with sass
 let plumber      = require('gulp-plumber');
 let sourcemaps   = require('gulp-sourcemaps');
+let babel        = require('gulp-babel');
 
 // File paths
 let SCRIPTS_PATH = 'src/js/**/*.js';
@@ -21,7 +22,7 @@ gulp.task('sass', function(){
       console.log('Style task error');
       console.log(err);
       this.emit('end');
-    })) // Keep gulp watch running even if the an error
+    })) // Keep gulp watch running even if there's an error
     .pipe(sourcemaps.init())
     .pipe(sass({
       outputStyle: 'compressed'
@@ -39,8 +40,22 @@ gulp.task('sass', function(){
 // Javascript
 gulp.task('scripts', function(){
   return gulp.src(SCRIPTS_PATH)
+    .pipe(plumber(function(err) {
+      console.log('Scripts task error');
+      console.log(err);
+      this.emit('end');
+    })) // Keep gulp watch running even if there's an error
+    .pipe(sourcemaps.init())
+    .pipe(babel({
+      presets: ['env']
+    }))
     .pipe(uglify())
-    .pipe(gulp.dest('app/js'));
+    .pipe(concat('scripts.js'))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('app/js'))
+    .pipe(browserSync.reload({
+      stream: true
+    }))
 });
 
 // image minification -- only changes if necessary
@@ -55,18 +70,18 @@ gulp.task('imagemin', function(){
 
 
 // Watcher to rerun gulp on save
-gulp.task('default', ['browserSync', 'sass', 'imagemin'], function(){
+gulp.task('default', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   gulp.watch(CSS_PATH, ['sass']);
   // Other watchers
   gulp.watch('app/*.html', browserSync.reload);
-  gulp.watch(SCRIPTS_PATH, ['scripts'], browserSync.reload);
+  gulp.watch(SCRIPTS_PATH, ['scripts']);
 })
 // Watcher to rerun gulp on save
-gulp.task('watch', ['browserSync', 'sass', 'imagemin'], function(){
+gulp.task('watch', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   gulp.watch(CSS_PATH, ['sass']);
   // Other watchers
   gulp.watch('app/*.html', browserSync.reload);
-  gulp.watch(SCRIPTS_PATH, browserSync.reload);
+  gulp.watch(SCRIPTS_PATH, ['scripts']);
 })
 
 // Setting up a web server for auto browser reload
