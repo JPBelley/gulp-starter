@@ -1,19 +1,26 @@
 // load the require modules
-let gulp         = require('gulp');
-let sass         = require('gulp-sass');
-let uglify       = require('gulp-uglify');
-let concat       = require('gulp-concat');
-let autoprefixer = require('gulp-autoprefixer');
-let browserSync  = require('browser-sync').create();
-let imagemin     = require('gulp-imagemin');
-let cleanCSS     = require('gulp-clean-css'); // Not required with sass
-let plumber      = require('gulp-plumber');
-let sourcemaps   = require('gulp-sourcemaps');
-let babel        = require('gulp-babel');
+let gulp           = require('gulp');
+let sass           = require('gulp-sass');
+let uglify         = require('gulp-uglify');
+let concat         = require('gulp-concat');
+let autoprefixer   = require('gulp-autoprefixer');
+let browserSync    = require('browser-sync').create();
+let imagemin       = require('gulp-imagemin');
+let cleanCSS       = require('gulp-clean-css'); // Not required with sass
+let plumber        = require('gulp-plumber');
+let sourcemaps     = require('gulp-sourcemaps');
+let babel          = require('gulp-babel');
+
+// handlebars plugins
+let handlebars     = require('gulp-handlebars');
+let handlebarsLibs = require('handlebars');
+let declare        = require('gulp-declare');
+let wrap           = require('gulp-wrap');
 
 // File paths
-let SCRIPTS_PATH = 'src/js/**/*.js';
-let CSS_PATH = 'src/scss/**/*.scss';
+let SCRIPTS_PATH   = 'src/js/**/*.js';
+let CSS_PATH       = 'src/scss/**/*.scss';
+let TEMPLATES_PATH = 'src/templates/**/*.hbs';
 
 // Translate SASS to CSS
 gulp.task('sass', function(){
@@ -68,6 +75,20 @@ gulp.task('imagemin', function(){
   .pipe(gulp.dest(img_dest));
 });
 
+// Templates with handlebars
+gulp.task('templates', function(){
+    return gulp.src(TEMPLATES_PATH)
+    .pipe(handlebars({
+      handlebars: handlebarsLibs
+    }))
+    .pipe(wrap('Handlebars.template(<%= contents %>)'))
+    .pipe(declare({
+      namespace: 'templates',
+      noRedeclare: true
+    }))
+    .pipe(concat('templates.js'))
+    .pipe(gulp.dest('app/'))
+});
 
 // Watcher to rerun gulp on save
 gulp.task('default', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
@@ -75,7 +96,9 @@ gulp.task('default', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   // Other watchers
   gulp.watch('app/*.html', browserSync.reload);
   gulp.watch(SCRIPTS_PATH, ['scripts']);
+  gulp.watch(TEMPLATES_PATH, ['templates']);
 })
+
 // Watcher to rerun gulp on save
 gulp.task('watch', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   gulp.watch(CSS_PATH, ['sass']);
