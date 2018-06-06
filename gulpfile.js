@@ -9,6 +9,8 @@ let cleanCSS       = require('gulp-clean-css'); // Not required with sass
 let plumber        = require('gulp-plumber');
 let sourcemaps     = require('gulp-sourcemaps');
 let babel          = require('gulp-babel');
+let del            = require('del');
+let zip            = require('gulp-zip');
 
 // handlebars plugins
 let handlebars     = require('gulp-handlebars');
@@ -102,6 +104,16 @@ gulp.task('templates', function(){
     .pipe(gulp.dest('app/'))
 });
 
+// Gulp clean task to delete folder
+gulp.task('clean', function() {
+  return del.sync([
+    'app/css',
+    'app/images',
+    'app/js',
+    'app/templates.js'
+  ]);
+});
+
 // Watcher to rerun gulp on save
 gulp.task('default', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   gulp.watch(CSS_PATH, ['sass']);
@@ -109,7 +121,7 @@ gulp.task('default', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   gulp.watch('app/*.html', browserSync.reload);
   gulp.watch(SCRIPTS_PATH, ['scripts']);
   gulp.watch(TEMPLATES_PATH, ['templates']);
-})
+});
 
 // Watcher to rerun gulp on save
 gulp.task('watch', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
@@ -117,7 +129,14 @@ gulp.task('watch', ['browserSync', 'sass', 'imagemin', 'scripts'], function(){
   // Other watchers
   gulp.watch('app/*.html', browserSync.reload);
   gulp.watch(SCRIPTS_PATH, ['scripts']);
-})
+});
+
+// Zip project
+gulp.task('export', function() {
+  return gulp.src('app/**/*')
+  .pipe(zip('website.zip'))
+  .pipe(gulp.dest('./'))
+});
 
 // Setting up a web server for auto browser reload
 gulp.task('browserSync', function() {
@@ -125,5 +144,5 @@ gulp.task('browserSync', function() {
     server: {
       baseDir: 'app'
     },
-  })
-})
+  });
+});
