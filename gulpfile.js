@@ -5,7 +5,6 @@ let uglify         = require('gulp-uglify');
 let concat         = require('gulp-concat');
 let autoprefixer   = require('gulp-autoprefixer');
 let browserSync    = require('browser-sync').create();
-let imagemin       = require('gulp-imagemin');
 let cleanCSS       = require('gulp-clean-css'); // Not required with sass
 let plumber        = require('gulp-plumber');
 let sourcemaps     = require('gulp-sourcemaps');
@@ -17,10 +16,16 @@ let handlebarsLibs = require('handlebars');
 let declare        = require('gulp-declare');
 let wrap           = require('gulp-wrap');
 
+// Image minification
+let imagemin       = require('gulp-imagemin');
+let imageminPng    = require('imagemin-pngquant');
+let imageminJpeg   = require('imagemin-jpeg-recompress');
+
 // File paths
 let SCRIPTS_PATH   = 'src/js/**/*.js';
 let CSS_PATH       = 'src/scss/**/*.scss';
 let TEMPLATES_PATH = 'src/templates/**/*.hbs';
+let IMAGES_PATH    = 'src/images/**/*.{png,jpeg,jpg,svg,gif}';
 
 // Translate SASS to CSS
 gulp.task('sass', function(){
@@ -67,11 +72,18 @@ gulp.task('scripts', function(){
 
 // image minification -- only changes if necessary
 gulp.task('imagemin', function(){
-  var img_src = 'src/images/*';
   var img_dest = 'app/images';
-  gulp.src(img_src)
-  // .pipe(changed(img_dest))
-  .pipe(imagemin())
+  gulp.src(IMAGES_PATH)
+  .pipe(imagemin(
+    [
+      imagemin.gifsicle(),
+      imagemin.jpegtran(),
+      imagemin.optipng(),
+      imagemin.svgo(),
+      imageminPng(),
+      imageminJpeg()
+    ]
+  ))
   .pipe(gulp.dest(img_dest));
 });
 
