@@ -41,7 +41,9 @@ gulp.task('sass', function(){
     .pipe(sass({
       outputStyle: 'compressed'
     })) // Converts Sass to CSS with gulp-sass
-    .pipe(autoprefixer())
+    .pipe(autoprefixer({
+        grid: true
+    }))
     // .pipe(concat('style.css'))
     // .pipe(cleanCSS({compatibility: 'ie8'}))
     .pipe(sourcemaps.write())
