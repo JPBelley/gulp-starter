@@ -4,15 +4,15 @@
 Basic gulp system to ease development task!
 
 ### Install node module with
-npm i
+`npm i`
 
 ### Gulp task
 
 #### Default task
-gulp
+`gulp`
 
 #### Clean production folder
-gulp clean
+`gulp clean`
 
 #### Export website
-gulp export
+`gulp export`
